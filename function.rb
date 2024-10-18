@@ -27,6 +27,12 @@ def main(event:, context:)
   return response(body: '', status: 404)
 end
 
+def find_value_case_insensitively(hash, key)
+  downcased_key = key.downcase
+  matching_key = hash.keys.find { |k| k.downcase == downcased_key }
+  matching_key ? hash[matching_key] : nil
+end
+
 def get_authorized(event:)
   # Regex to match 'Bearer ' followed by a JWT
   if !event["headers"].key?("Authorization")
@@ -59,7 +65,7 @@ def post_auth_token(event:)
   rescue TypeError
   end
 
-  if event["headers"]["Content-Type"] != "application/json"
+  if find_value_case_insensitively(event["headers"], "content-type") != "application/json"
     return response(body: '', status: 415)
   end
 
@@ -101,6 +107,12 @@ if $PROGRAM_NAME == __FILE__
                'path' => '/auth/token'
              })
 
+  PP.pp main(context: {}, event: {
+               'body' => '',
+               'headers' => { 'Content-Type' => 'application/json' },
+               'httpMethod' => 'POST',
+               'path' => '/auth/token'
+             })
   # Generate a token
   payload = {
     data: { user_id: 128 },
@@ -115,4 +127,10 @@ if $PROGRAM_NAME == __FILE__
                'httpMethod' => 'GET',
                'path' => '/'
              })
+  PP.pp main(context: {}, event: {
+              'headers' => { 'AuTHorization' => "Bearer #{token}",
+                             'Content-Type' => 'application/json' },
+              'httpMethod' => 'GET',
+              'path' => '/'
+            })
 end
