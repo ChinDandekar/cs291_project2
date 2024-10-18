@@ -35,11 +35,13 @@ end
 
 def get_authorized(event:)
   # Regex to match 'Bearer ' followed by a JWT
-  if !event["headers"].key?("Authorization")
+  authorization = find_value_case_insensitively(event["headers"], "authorization")
+
+  if !authorization
     return response(body: '', status: 403)
   end
 
-  words = event["headers"]["Authorization"].split
+  words = authorization.split
   if words.length != 2 or words[0] != "Bearer"
     return response(body: '', status: 403)
   end
@@ -91,7 +93,7 @@ def response(body: nil, status: 200)
     body: body ? body.to_json + "\n" : '',
     statusCode: status
   }
-  puts(ans)
+  # puts(ans)
   return ans
 end
 
