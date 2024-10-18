@@ -59,7 +59,7 @@ end
 
 
 def post_auth_token(event:)
-  body = event["body"]
+  body = find_value_case_insensitively(event, "body")
   begin
     JSON.parse(body)
   rescue JSON::ParserError
@@ -112,8 +112,8 @@ if $PROGRAM_NAME == __FILE__
              })
 
   PP.pp main(context: {}, event: {
-               'body' => '',
-               'headers' => { 'Content-Type' => 'application/json' },
+               'body' => 'hello',
+               'headers' => { "Content-Type" => "application/json" },
                'httpMethod' => 'POST',
                'path' => '/auth/token'
              })
@@ -132,7 +132,7 @@ if $PROGRAM_NAME == __FILE__
                'path' => '/'
              })
   PP.pp main(context: {}, event: {
-              'headers' => { 'AuTHorization' => "Bearer #{token}",
+              'headers' => { 'AuTHorizatiOn' => nil,
                              'Content-Type' => 'application/json' },
               'httpMethod' => 'GET',
               'path' => '/'
