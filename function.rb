@@ -83,14 +83,16 @@ def post_auth_token(event:)
    jwt_token = JWT.encode(payload, ENV['JWT_SECRET'], 'HS256')
  
    # Return the JSON response
-   return response(body: {token: jwt_token}.to_json, status: 201)
+   return response(body: {token: jwt_token}, status: 201)
 end
 
 def response(body: nil, status: 200)
-  {
+  ans = {
     body: body ? body.to_json + "\n" : '',
     statusCode: status
   }
+  puts(ans)
+  return ans
 end
 
 if $PROGRAM_NAME == __FILE__
