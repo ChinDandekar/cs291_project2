@@ -49,8 +49,10 @@ def get_authorized(event:)
   begin
     decoded = JWT.decode(words[1], ENV["JWT_SECRET"], true, { algorithm: 'HS256' })
   rescue JWT::DecodeError => e
-    return response(body: '', status: 401)
+    return response(body: '', status: 403)
   rescue JWT::ExpiredSignature
+    return response(body: '', status: 401)
+  rescue JSON::ParserError
     return response(body: '', status: 401)
   end
 
@@ -60,11 +62,16 @@ end
 
 def post_auth_token(event:)
   body = find_value_case_insensitively(event, "body")
+
+  if body.length == 0
+    return response(body: '', status: 422)
+  end
+
+
   begin
-    JSON.parse(body)
+    body = JSON.parse(body)
   rescue JSON::ParserError
     return response(body: '', status: 422)
-  rescue TypeError
   end
 
   if find_value_case_insensitively(event["headers"], "content-type") != "application/json"
@@ -76,7 +83,7 @@ def post_auth_token(event:)
 
    # Define the payload
    payload = {
-     data: event["body"],  # Include the request body as the 'data' field
+     data: body,  # Include the request body as the 'data' field
      exp: current_time + 5,  # Expiration time: 5 seconds after generation
      nbf: current_time + 2   # Not before time: 2 seconds after generation
    }
@@ -112,7 +119,7 @@ if $PROGRAM_NAME == __FILE__
              })
 
   PP.pp main(context: {}, event: {
-               'body' => 'hello',
+               'body' => "",
                'headers' => { "Content-Type" => "application/json" },
                'httpMethod' => 'POST',
                'path' => '/auth/token'
