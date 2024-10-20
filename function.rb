@@ -63,7 +63,7 @@ end
 def post_auth_token(event:)
   body = find_value_case_insensitively(event, "body")
 
-  if body.length == 0
+  if body != nil? or body.length == 0
     return response(body: '', status: 422)
   end
 
@@ -119,7 +119,7 @@ if $PROGRAM_NAME == __FILE__
              })
 
   PP.pp main(context: {}, event: {
-               'body' => "",
+               'body' => nil,
                'headers' => { "Content-Type" => "application/json" },
                'httpMethod' => 'POST',
                'path' => '/auth/token'
