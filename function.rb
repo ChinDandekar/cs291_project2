@@ -50,6 +50,8 @@ def get_authorized(event:)
     decoded = JWT.decode(words[1], ENV["JWT_SECRET"], true, { algorithm: 'HS256' })
   rescue JWT::ExpiredSignature
     return response(body: '', status: 401)
+  rescue JWT::ImmatureSignature
+    return response(body: '', status: 401)
   rescue JWT::DecodeError => e
     return response(body: '', status: 403)
   rescue JSON::ParserError
